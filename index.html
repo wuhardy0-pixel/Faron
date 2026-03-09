@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faron – A Legend of the Forest</title>
+  <meta name="description" content="Faron – A top-down Zelda-style RPG set in a lush mystical forest." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="gameWrapper">
+    <!-- Loading screen -->
+    <div id="loadingScreen">
+      <div id="loadingTitle">FARON</div>
+      <div id="loadingBar">
+        <div id="loadingBarFill"></div>
+      </div>
+      <div id="loadingText">LOADING THE FOREST...</div>
+    </div>
+
+    <!-- Game canvas: 1280 × 720 (16:9) -->
+    <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+    <!-- Lobby screen -->
+    <div id="lobby" class="hidden">
+      <h2>Zelda Multiplayer</h2>
+
+      <div id="nicknameSection" class="lobby-section">
+        <p style="margin-bottom: 15px; font-size: 10px;">ENTER YOUR NICKNAME</p>
+        <input type="text" id="nicknameInput" placeholder="NICKNAME" maxlength="12" />
+        <div style="margin-top: 10px;">
+          <p style="margin-bottom: 5px; font-size: 8px; color: #888;">SERVER URL (OPTIONAL)</p>
+          <input type="text" id="serverUrlInput" placeholder="localhost:3005" style="font-size: 10px;" />
+        </div>
+        <button id="connectBtn" style="margin-top: 15px;">CONNECT</button>
+      </div>
+
+      <div id="roomSection" class="lobby-section hidden">
+        <p style="margin-bottom: 10px; font-size: 10px;">PUBLIC ROOMS</p>
+        <ul id="roomList"></ul>
+        <button id="refreshBtn" class="secondary">REFRESH ROOMS</button>
+        <div style="margin: 20px 0; border-top: 1px solid #444;"></div>
+        <p style="margin-bottom: 10px; font-size: 10px;">CREATE NEW ROOM</p>
+        <input type="text" id="newRoomId" placeholder="ROOM NAME" maxlength="15" />
+        <div class="private-toggle">
+          <input type="checkbox" id="isPrivate" /> <label for="isPrivate">PRIVATE ROOM</label>
+        </div>
+        <input type="password" id="roomCode" class="hidden" placeholder="CODE" maxlength="8" />
+        <button id="createRoomBtn">CREATE & JOIN</button>
+        <div style="margin: 20px 0; border-top: 1px solid #444;"></div>
+        <input type="password" id="joinPrivateCode" placeholder="PRIVATE CODE" maxlength="8" />
+        <p style="font-size: 8px; color: #888;">(Select room from list and enter code if private)</p>
+      </div>
+
+      <div id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- Socket.io -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+  <!-- Core utilities -->
+  <script src="js/SpriteLoader.js"></script>
+  <script src="js/Particles.js"></script>
+  <script src="js/Audio.js"></script>
+  <script src="js/MultiplayerManager.js"></script>
+
+  <!-- New systems -->
+  <script src="js/Magic.js"></script>
+  <script src="js/Quest.js"></script>
+  <script src="js/Upgrade.js"></script>
+  <script src="js/Boss.js"></script>
+
+  <!-- World / Level / Entities -->
+  <script src="js/World.js"></script>
+  <script src="js/LevelManager.js"></script>
+  <script src="js/Player.js"></script>
+  <script src="js/Enemy.js"></script>
+
+  <!-- UI -->
+  <script src="js/UI.js"></script>
+
+  <!-- Main game loop (boots on window load) -->
+  <script src="js/Game.js"></script>
+
+
+  <!-- Loading screen fade-out -->
+  <script>
+    (function () {
+      const screen = document.getElementById('loadingScreen');
+      const bar = document.getElementById('loadingBarFill');
+      const textEl = document.getElementById('loadingText');
+      let progress = 0;
+      const messages = [
+        'SUMMONING THE TREES...',
+        'WAKING THE SPIRITS...',
+        'SHARPENING THE SWORD...',
+        'ENTERING FARON WOODS...',
+      ];
+      let msgIdx = 0;
+
+      const interval = setInterval(() => {
+        progress = Math.min(100, progress + (2 + Math.random() * 6));
+        bar.style.width = progress + '%';
+        if (progress >= 25 * (msgIdx + 1) && msgIdx < messages.length - 1) {
+          msgIdx++;
+          textEl.textContent = messages[msgIdx];
+        }
+        if (progress >= 100) {
+          clearInterval(interval);
+          textEl.textContent = 'READY!';
+          setTimeout(() => {
+            screen.classList.add('hidden');
+            setTimeout(() => { screen.style.display = 'none'; }, 550);
+          }, 400);
+        }
+      }, 60);
+    })();
+  </script>
+</body>
+
+</html>
