@@ -36,8 +36,14 @@ class MultiplayerManager {
             delete this.players[id];
         });
 
+        this.socket.on('connect_error', (err) => {
+            console.error('Connection error:', err);
+            if (this.onError) this.onError('CONNECTION FAILED: ' + err.message);
+        });
+
         this.socket.on('error', (err) => {
-            if (this.onError) this.onError(err);
+            console.error('Socket error:', err);
+            if (this.onError) this.onError('SERVER ERROR: ' + err);
         });
     }
 
