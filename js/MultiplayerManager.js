@@ -7,6 +7,8 @@ class MultiplayerManager {
         this.available = typeof io !== 'undefined'; // false when opened as a plain HTML file
         this.onConnected = null;
         this.onRoomJoined = null;
+        this.onMonsterUpdate = null;
+        this.onMonsterRespawn = null;
         this.onError = null;
     }
 
@@ -34,6 +36,14 @@ class MultiplayerManager {
 
         this.socket.on('playerLeft', (id) => {
             delete this.players[id];
+        });
+
+        this.socket.on('monsterUpdate', (data) => {
+            if (this.onMonsterUpdate) this.onMonsterUpdate(data);
+        });
+
+        this.socket.on('monsterRespawn', (data) => {
+            if (this.onMonsterRespawn) this.onMonsterRespawn(data);
         });
 
         this.socket.on('connect_error', (err) => {
@@ -71,5 +81,15 @@ class MultiplayerManager {
     updateState(state) {
         if (!this.available || !this.socket || !this.roomId) return;
         this.socket.emit('updateState', state);
+    }
+
+    monsterHit(monsterId, damage) {
+        if (!this.available || !this.socket || !this.roomId) return;
+        this.socket.emit('monsterHit', { monsterId, damage });
+    }
+
+    monsterRespawn(monsterId) {
+        if (!this.available || !this.socket || !this.roomId) return;
+        this.socket.emit('monsterRespawn', { monsterId });
     }
 }

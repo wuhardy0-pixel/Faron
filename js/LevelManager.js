@@ -149,7 +149,7 @@ function buildCaveWorld() {
         { type: 'squid', wx: 11 * ts, wy: 11 * ts },
         { type: 'squid', wx: 14 * ts, wy: 5 * ts },
         { type: 'bamboo', wx: 5 * ts, wy: 9 * ts },
-    ];
+    ].map((s, idx) => ({ ...s, id: `cave_${idx}` }));
     W.npcs = [];
     W.bossSpawn = null;
     W._validateEnemySpawns();
@@ -196,7 +196,7 @@ function buildRuinsWorld() {
         { type: 'spirit', wx: 15 * ts, wy: 5 * ts },
         { type: 'bamboo', wx: 20 * ts, wy: 18 * ts },
         { type: 'bamboo', wx: 10 * ts, wy: 12 * ts },
-    ];
+    ].map((s, idx) => ({ ...s, id: `ruins_${idx}` }));
     W.npcs = [
         {
             wx: 4 * ts, wy: 8 * ts, name: 'Ruins Ghost',
@@ -232,7 +232,7 @@ function buildBossWorld() {
         { type: 'heart', wx: 11 * ts, wy: 10 * ts, alive: true, bobOffset: 1 },
     ];
     W.enemySpawns = [];
-    W.bossSpawn = { type: 'forest_guardian', wx: 7 * ts, wy: 4 * ts };
+    W.bossSpawn = { id: 'boss_forest', type: 'forest_guardian', wx: 7 * ts, wy: 4 * ts };
     W.npcs = [];
     return W;
 }

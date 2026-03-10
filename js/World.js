@@ -210,8 +210,9 @@ class World {
             { tx: 26, ty: 24, type: 'squid' },
             { tx: 16, ty: 10, type: 'squid' },
             { tx: 38, ty: 20, type: 'squid' },
-        ].map(s => ({
+        ].map((s, idx) => ({
             ...s,
+            id: `forest_${idx}`,
             wx: s.tx * this.tileSize + this.tileSize / 2,
             wy: s.ty * this.tileSize + this.tileSize / 2,
         }));

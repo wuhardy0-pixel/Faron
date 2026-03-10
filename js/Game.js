@@ -111,10 +111,43 @@ class Game {
             this.mpManager.joinRoom(rid, isPrivate.checked, code);
         });
 
-        this.mpManager.onRoomJoined = () => {
+        this.mpManager.onRoomJoined = (resp) => {
             lobby.classList.add('hidden');
             this.state = 'playing';
             this._startGame();
+            // Apply initial monster states if any
+            if (resp && resp.monsterStates) {
+                for (const [mid, state] of Object.entries(resp.monsterStates)) {
+                    const e = this.enemies.find(en => en.id === mid);
+                    if (e) {
+                        e.hp = state.hp;
+                        e.alive = state.alive;
+                    }
+                }
+            }
+        };
+
+        this.mpManager.onMonsterUpdate = (data) => {
+            if (!this.enemies) return;
+            const enemy = this.enemies.find(e => e.id === data.id);
+            if (enemy) {
+                const wasAlive = enemy.alive;
+                enemy.hp = data.hp;
+                enemy.alive = data.alive;
+                if (wasAlive && !enemy.alive) {
+                    this.particles.spawnDeath(enemy.x, enemy.y, enemy.color);
+                    this.audio.enemyDie();
+                }
+            }
+        };
+
+        this.mpManager.onMonsterRespawn = (data) => {
+            if (!this.enemies) return;
+            const enemy = this.enemies.find(e => e.id === data.id);
+            if (enemy) {
+                enemy.alive = true;
+                enemy.hp = enemy.maxHp;
+            }
         };
     }
 
@@ -179,7 +212,12 @@ class Game {
         this.player.history = oldHistory;
         this.teammateProjectiles = [];
 
-        this.enemies = this.world.enemySpawns.map(s => new Enemy(s.type, s.wx, s.wy));
+        this.enemies = this.world.enemySpawns.map(s => {
+            const e = new Enemy(s.id, s.type, s.wx, s.wy);
+            e.onHit = (id, dmg) => this.mpManager.monsterHit(id, dmg);
+            e.onRespawn = (id) => this.mpManager.monsterRespawn(id);
+            return e;
+        });
 
         // Conditional Boss Spawn (Tanuki Lord only with 3 keys)
         const hasKeys = this.quests.quests.find(q => q.id === 'portal_key')?.progress === 3;

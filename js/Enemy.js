@@ -8,7 +8,8 @@ const MONSTER_STATS = {
 };
 
 class Enemy {
-    constructor(type, wx, wy) {
+    constructor(id, type, wx, wy) {
+        this.id = id;
         this.type = type;
         this.x = wx; this.y = wy;
         const cfg = MONSTER_STATS[type] || MONSTER_STATS.bamboo;
@@ -97,9 +98,9 @@ class Enemy {
                     this.state = 'idle';
                     this.hurtTimer = 0; this.attackTimer = 0;
                     this.knockX = 0; this.knockY = 0;
+                    this.readyToRespawn = true;
                 }
             }
-            return;
         }
 
         // New projectiles list — reset every frame
@@ -278,6 +279,7 @@ class Enemy {
         const dx = this.x - fromX, dy = this.y - fromY;
         const len = Math.hypot(dx, dy) || 1;
         this.knockX = (dx / len) * 280; this.knockY = (dy / len) * 280;
+        if (this.onHit) this.onHit(this.id, amount);
         if (this.hp <= 0) { this.alive = false; this.deadTimer = 0; }
     }
 
@@ -293,6 +295,11 @@ class Enemy {
             ctx.beginPath(); ctx.arc(gsx, gsy, this.radius * 0.8, 0, Math.PI * 2); ctx.fill();
             ctx.shadowBlur = 0; ctx.globalAlpha = 1;
             return;
+        }
+
+        if (this.readyToRespawn) {
+            this.readyToRespawn = false;
+            if (this.onRespawn) this.onRespawn(this.id);
         }
         if (!this.alive) return;
         if (this.isBlinking) return; // spirit invisible while teleporting
